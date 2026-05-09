@@ -1,0 +1,52 @@
+<div class="header-action">
+  <h2>Contact Categories</h2>
+  <button class="btn btn-primary" (click)="toggleAddForm()">
+    <i class="fas fa-plus"></i> New Category
+  </button>
+</div>
+
+<div class="card add-form" *ngIf="showAddForm">
+  <h3>Add New Category</h3>
+  <form (ngSubmit)="addCategory()" #catForm="ngForm">
+    <div class="form-group">
+      <label>Category Name</label>
+      <input type="text" name="name" [(ngModel)]="newCategory.name" required placeholder="E.g., VIP Customers">
+    </div>
+    <div class="form-group">
+      <label>Description</label>
+      <input type="text" name="description" [(ngModel)]="newCategory.description" placeholder="Optional description">
+    </div>
+    <div class="actions mt-3">
+      <button type="submit" class="btn btn-primary" [disabled]="!newCategory.name">Save</button>
+      <button type="button" class="btn btn-secondary ml-2" (click)="toggleAddForm()">Cancel</button>
+    </div>
+  </form>
+</div>
+
+<div class="categories-grid">
+  <div class="category-card" *ngFor="let cat of categories">
+    <div class="cat-header">
+      <h3>{{ cat.name }}</h3>
+      <button class="icon-btn delete" (click)="deleteCategory(cat._id)" title="Delete Category">
+        <i class="fas fa-trash"></i>
+      </button>
+    </div>
+    <p class="desc">{{ cat.description || 'No description' }}</p>
+    <div class="stats">
+      <span class="badge"><i class="fas fa-users"></i> {{ cat.contactCount || 0 }} Contacts</span>
+    </div>
+    <div class="cat-actions">
+      <a [routerLink]="['/contacts', cat._id]" class="btn btn-secondary btn-sm">Manage Contacts</a>
+      <a [routerLink]="['/send', cat._id]" class="btn btn-primary btn-sm ml-2">Send Bulk Msg</a>
+    </div>
+  </div>
+  
+  <div class="empty-state" *ngIf="categories.length === 0 && !loading">
+    <i class="fas fa-folder-open"></i>
+    <p>No categories found. Create one to start managing your contacts.</p>
+  </div>
+  
+  <div class="loader" *ngIf="loading">
+    <div class="spinner"></div>
+  </div>
+</div>

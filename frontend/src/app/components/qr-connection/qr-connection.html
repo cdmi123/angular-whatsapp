@@ -1,0 +1,28 @@
+<section class="card auth-card" *ngIf="!isConnected">
+  <h2>Connect to WhatsApp</h2>
+  <p>Scan the QR code below using your WhatsApp mobile app to link your device.</p>
+  
+  <div class="qr-container">
+    <div *ngIf="qrCode; else loader" class="qr-code-wrapper">
+      <img [src]="qrCode" alt="WhatsApp QR Code">
+    </div>
+    <ng-template #loader>
+      <div class="loader">
+        <div class="spinner"></div>
+        <p>{{ connectionStatus }}</p>
+      </div>
+    </ng-template>
+  </div>
+</section>
+
+<section class="card connected-card" *ngIf="isConnected">
+  <div class="success-icon">
+    <i class="fas fa-check-circle"></i>
+  </div>
+  <h2>Successfully Connected</h2>
+  <p>Your device is linked. You can now proceed to manage contacts or send bulk messages.</p>
+  <div class="actions">
+    <a routerLink="/categories" class="btn btn-primary">Manage Categories</a>
+    <a routerLink="/send" class="btn btn-secondary" style="margin-left: 10px; background: rgba(255,255,255,0.1); color: #fff;">Send Messages</a>
+  </div>
+</section>

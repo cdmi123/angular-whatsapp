@@ -1,0 +1,75 @@
+<div class="app-layout">
+  
+  <!-- Sidebar Navigation -->
+  <aside class="sidebar">
+    <div class="sidebar-header">
+      <div class="logo-icon">
+        <i class="fab fa-whatsapp"></i>
+      </div>
+      <h2>WA Bulk Pro</h2>
+    </div>
+
+    <nav class="sidebar-nav">
+      <a routerLink="/dashboard" routerLinkActive="active" class="nav-item">
+        <i class="fas fa-chart-line"></i>
+        <span>Dashboard</span>
+      </a>
+
+      <a routerLink="/connection" routerLinkActive="active" class="nav-item">
+        <i class="fas fa-qrcode"></i>
+        <span>Connection</span>
+      </a>
+      
+      <a routerLink="/categories" routerLinkActive="active" class="nav-item">
+        <i class="fas fa-folder-open"></i>
+        <span>Categories & Contacts</span>
+      </a>
+      
+      <a routerLink="/send" routerLinkActive="active" class="nav-item">
+        <i class="fas fa-paper-plane"></i>
+        <span>Send Bulk Messages</span>
+      </a>
+    </nav>
+
+    <div class="sidebar-footer">
+      <div class="status-badge" [ngClass]="{'connected': isConnected, 'disconnected': !isConnected}">
+        <span class="status-indicator"></span>
+        <span class="status-text">{{ isConnected ? 'Connected' : 'Offline' }}</span>
+      </div>
+    </div>
+  </aside>
+
+  <!-- Main Content Area -->
+  <main class="main-content">
+    <div class="top-bar">
+      <h2>{{ title }}</h2>
+      <div class="user-profile">
+        <i class="fas fa-user-circle"></i>
+      </div>
+    </div>
+    
+    <div class="content-wrapper">
+      <router-outlet></router-outlet>
+    </div>
+    
+    <!-- Premium Single-Line Footer -->
+    <footer class="main-footer">
+      <div class="footer-content">
+        <div class="footer-copyright">
+          <p>&copy; 2024 <strong>WA Bulk Pro</strong>. All rights reserved.</p>
+        </div>
+        <div class="footer-meta">
+          <span class="footer-version">
+            <i class="fas fa-code-branch"></i> v2.0.4-stable
+          </span>
+          <span class="meta-divider">•</span>
+          <span class="footer-status">
+            <span class="status-indicator online"></span>
+            System Status: Operational
+          </span>
+        </div>
+      </div>
+    </footer>
+  </main>
+
+</div>

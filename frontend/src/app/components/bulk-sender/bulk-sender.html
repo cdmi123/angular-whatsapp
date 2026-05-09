@@ -1,0 +1,97 @@
+<div class="header-action">
+  <h2>Send Bulk Messages</h2>
+  <div class="lang-toggle">
+    <span [class.active]="!gujaratiMode">English</span>
+    <label class="switch">
+      <input type="checkbox" [(ngModel)]="gujaratiMode">
+      <span class="slider round"></span>
+    </label>
+    <span [class.active]="gujaratiMode">Gujarati</span>
+  </div>
+</div>
+
+<div class="dashboard-grid">
+  <div class="card sender-card">
+    <form (ngSubmit)="sendBulk()" #campaignForm="ngForm">
+      
+      <div class="form-group">
+        <label>Select Category (From Database)</label>
+        <select name="categoryId" [(ngModel)]="selectedCategoryId" class="form-control" [disabled]="categories.length === 0">
+          <option value="">-- No Category (Manual / CSV Only) --</option>
+          <option *ngFor="let cat of categories" [value]="cat._id">
+            {{ cat.name }} ({{ cat.contactCount }} contacts)
+          </option>
+        </select>
+        <small class="helper-text" *ngIf="categories.length === 0">No categories found. Create one first or use manual input below.</small>
+      </div>
+
+      <div class="form-group">
+        <label>Message <small *ngIf="gujaratiMode" class="text-primary">(Gujarati Typing Enabled - Press Space to convert)</small></label>
+        <textarea name="message" [(ngModel)]="messageText" (keyup)="onMessageKeyUp($event)" rows="6" placeholder="Type your message here..."></textarea>
+      </div>
+
+      <div class="form-row">
+        <div class="form-group half-width">
+          <label>Additional Phone Numbers (Manual)</label>
+          <textarea name="numbers" [(ngModel)]="phoneNumbersText" rows="4" placeholder="Enter numbers separated by new lines..."></textarea>
+        </div>
+        
+        <div class="divider-text">AND/OR</div>
+
+        <div class="form-group half-width">
+          <label>Upload CSV File</label>
+          <div class="file-upload-wrapper">
+            <input type="file" id="csvFile" (change)="onFileSelected($event)" accept=".csv" class="file-input">
+            <label for="csvFile" class="file-upload-label">
+              <span class="upload-icon">📄</span>
+              <span>{{ selectedFile ? selectedFile.name : 'Choose a CSV file' }}</span>
+            </label>
+          </div>
+        </div>
+      </div>
+
+      <div class="form-actions mt-4">
+        <button type="submit" class="btn btn-primary" [disabled]="isSending || !messageText || (!selectedCategoryId && !phoneNumbersText && !selectedFile)">
+          <i class="fas fa-paper-plane mr-2"></i>
+          <span *ngIf="!isSending">Start Bulk Send</span>
+          <span *ngIf="isSending">Sending...</span>
+        </button>
+      </div>
+    </form>
+  </div>
+
+  <div class="card progress-card" *ngIf="isSending || sendCompleted">
+    <h2>Campaign Progress</h2>
+    
+    <div class="progress-stats" *ngIf="sendProgress || sendCompleted">
+      <div class="stat-box total">
+        <span class="label">Total</span>
+        <span class="value">{{ sendCompleted ? sendCompleted.total : sendProgress.total }}</span>
+      </div>
+      <div class="stat-box success">
+        <span class="label">Sent</span>
+        <span class="value">{{ sendCompleted ? sendCompleted.sentCount : sendProgress.sentCount }}</span>
+      </div>
+      <div class="stat-box failed">
+        <span class="label">Failed</span>
+        <span class="value">{{ sendCompleted ? sendCompleted.failedCount : sendProgress.failedCount }}</span>
+      </div>
+    </div>
+
+    <div class="progress-bar-container" *ngIf="isSending && sendProgress">
+      <div class="progress-bar" [style.width.%]="((sendProgress.sentCount + sendProgress.failedCount) / sendProgress.total) * 100"></div>
+    </div>
+
+    <div class="status-alert success" *ngIf="sendCompleted">
+      <p><strong>Completed!</strong> Campaign "{{ sendCompleted.category }}" finished.</p>
+    </div>
+
+    <div class="live-updates" *ngIf="isSending && sendProgress">
+      <h3>Live Updates:</h3>
+      <p [ngClass]="sendProgress.status === 'success' ? 'text-success' : 'text-danger'">
+        <span *ngIf="sendProgress.status === 'success'">Successfully sent to {{ sendProgress.number }}</span>
+        <span *ngIf="sendProgress.status === 'failed'">Failed to send to {{ sendProgress.number }} ({{ sendProgress.error }})</span>
+      </p>
+    </div>
+  </div>
+</div>

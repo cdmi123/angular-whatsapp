@@ -1,0 +1,171 @@
+<section class="dashboard-hero card">
+  <div>
+    <p class="hero-eyebrow">Overview</p>
+    <h2>Performance Analytics</h2>
+    <p class="text-muted">Real-time overview of your WhatsApp messaging activity.</p>
+  </div>
+  <div class="flex gap-2">
+    <button (click)="checkDatabase()" class="btn btn-secondary btn-sm">
+      <i class="fas fa-microscope"></i> Diagnose Database
+    </button>
+    <a routerLink="/send" class="btn btn-primary btn-sm hero-cta">
+      <i class="fas fa-paper-plane"></i>
+      Start Campaign
+    </a>
+  </div>
+</section>
+
+<!-- Stats Grid -->
+<div class="stats-grid">
+  <div class="stat-card card">
+    <div class="stat-icon sent">
+      <i class="fas fa-paper-plane"></i>
+    </div>
+    <div class="stat-info">
+      <span class="label">Total Sent</span>
+      <h3 class="value">{{ stats.sentCount }}</h3>
+    </div>
+  </div>
+
+  <div class="stat-card card">
+    <div class="stat-icon received">
+      <i class="fas fa-reply"></i>
+    </div>
+    <div class="stat-info">
+      <span class="label">Total Received</span>
+      <h3 class="value">{{ stats.receivedCount }}</h3>
+    </div>
+  </div>
+
+  <div class="stat-card card">
+    <div class="stat-icon read">
+      <i class="fas fa-check-double"></i>
+    </div>
+    <div class="stat-info">
+      <span class="label">Messages Read</span>
+      <h3 class="value">{{ stats.readCount }}</h3>
+    </div>
+  </div>
+</div>
+
+<!-- Active Campaign Section -->
+<div class="dashboard-sections">
+  <div class="card campaign-card">
+    <div class="section-header">
+      <h3><i class="fas fa-satellite-dish"></i> Current Campaign</h3>
+      <span class="badge" *ngIf="activeCampaign" [ngClass]="activeCampaign.status">
+        {{ activeCampaign.status | titlecase }}
+      </span>
+    </div>
+
+    <div *ngIf="activeCampaign; else noCampaign">
+      <div class="template-preview">
+        <h4>Message Template:</h4>
+        <div class="message-box">
+          {{ activeCampaign.message }}
+        </div>
+      </div>
+
+      <div class="campaign-progress mt-4">
+        <div class="progress-meta">
+          <span>Progress ({{ activeCampaign.sentCount + activeCampaign.failedCount }} / {{ activeCampaign.total }})</span>
+          <span>{{ getProgressBarWidth() | number:'1.0-0' }}%</span>
+        </div>
+        <div class="progress-bar-container">
+          <div class="progress-bar" [style.width.%]="getProgressBarWidth()"></div>
+        </div>
+        <div class="progress-legends mt-3">
+          <span class="legend-item text-success"><i class="fas fa-check"></i> {{ activeCampaign.sentCount }} Sent</span>
+          <span class="legend-item text-danger"><i class="fas fa-times"></i> {{ activeCampaign.failedCount }} Failed</span>
+        </div>
+      </div>
+    </div>
+
+    <ng-template #noCampaign>
+      <div class="empty-state py-5">
+        <i class="fas fa-bullhorn mb-3" style="font-size: 2.5rem; opacity: 0.2;"></i>
+        <p>No active campaign at the moment.</p>
+        <a routerLink="/send" class="btn btn-primary btn-sm mt-2">Start New Campaign</a>
+      </div>
+    </ng-template>
+  </div>
+
+  <!-- Quick Tips Card -->
+  <div class="card tips-card">
+    <h3><i class="fas fa-lightbulb"></i> Optimization Tips</h3>
+    <ul class="tips-list">
+      <li>
+        <i class="fas fa-clock"></i>
+        <span>Best time to send is between 10 AM and 6 PM.</span>
+      </li>
+      <li>
+        <i class="fas fa-font"></i>
+        <span>Use Gujarati transliteration for higher local engagement.</span>
+      </li>
+      <li>
+        <i class="fas fa-user-check"></i>
+        <span>Ensure your contacts have opted-in to avoid bans.</span>
+      </li>
+      <li>
+        <i class="fas fa-tachometer-alt"></i>
+        <span>Current delay is set to 1-3s per message.</span>
+      </li>
+    </ul>
+  </div>
+</div>
+
+<!-- Recent Campaigns History -->
+<div class="card mt-4">
+  <div class="section-header">
+    <h3><i class="fas fa-history"></i> Recent Campaigns</h3>
+    <div class="action-group">
+      <button (click)="fetchRecentCampaigns()" class="btn btn-secondary btn-sm" [disabled]="loading">
+        <i class="fas fa-sync-alt" [class.fa-spin]="loading"></i> Refresh History
+      </button>
+      <a routerLink="/send" class="btn btn-primary btn-sm">Create New</a>
+    </div>
+  </div>
+
+  <div *ngIf="recentCampaigns.length > 0" class="debug-info mb-2" style="font-size: 0.7rem; color: #ccc;">
+    Loaded: {{ recentCampaigns.length }} campaigns
+  </div>
+  
+  <div class="table-container mt-3">
+    <table class="data-table">
+      <thead>
+        <tr>
+          <th>Date</th>
+          <th>Campaign Name</th>
+          <th>Recipients</th>
+          <th>Sent</th>
+          <th>Read</th>
+          <th>Replies</th>
+          <th>Actions</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let campaign of recentCampaigns">
+          <td>{{ campaign.createdAt | date:'shortDate' }}</td>
+          <td><strong>{{ campaign.name }}</strong></td>
+          <td>{{ campaign.totalContacts }}</td>
+          <td><span class="text-success">{{ campaign.sentCount }}</span></td>
+          <td><span class="text-primary">{{ campaign.readCount }}</span></td>
+          <td><span class="text-warning">{{ campaign.receivedCount }}</span></td>
+          <td>
+            <a [routerLink]="['/campaign-details', campaign._id]" class="btn btn-primary btn-sm mr-2">
+              <i class="fas fa-chart-pie"></i> Details
+            </a>
+            <button (click)="deleteCampaign(campaign._id)" class="btn btn-danger btn-sm">
+              <i class="fas fa-trash"></i>
+            </button>
+          </td>
+        </tr>
+        <tr *ngIf="recentCampaigns.length === 0 && !loading">
+          <td colspan="7" class="text-center py-4">
+            <p>No campaigns found. Start by sending a bulk message.</p>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+</div>
